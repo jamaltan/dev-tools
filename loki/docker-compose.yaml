@@ -1,0 +1,45 @@
+version: '3.5'
+
+networks:
+  loki:
+
+services:
+  loki:
+    image: docker.mirrors.sjtug.sjtu.edu.cn/grafana/loki:2.8.2
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - 3100:3100
+    volumes:
+      - ./config:/etc/loki/config
+      - ./loki/index:/opt/loki/index
+      - ./loki/chunks:/opt/loki/chunks
+    user: "0"
+    command: -config.file=/etc/loki/config/loki-config.yaml
+    networks:
+      - loki
+
+  promtail:
+    image: docker.mirrors.sjtug.sjtu.edu.cn/grafana/promtail:2.8.2
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - ./promtail/logs:/var/logs
+      - ./config:/etc/promtail/config
+      - /data/log:/logs
+    user: "0"
+    command: -config.file=/etc/promtail/config/promtail-config.yaml
+    networks:
+      - loki
+
+  grafana:
+    image: docker.mirrors.sjtug.sjtu.edu.cn/grafana/grafana:9.5.2
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana:/var/lib/grafana
+    user: "0"
+    networks:
+      - loki

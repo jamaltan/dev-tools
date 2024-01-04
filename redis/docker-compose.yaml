@@ -1,0 +1,10 @@
+version: '3'
+services:
+  redis:
+    image: "redis:latest"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+    driver: local
